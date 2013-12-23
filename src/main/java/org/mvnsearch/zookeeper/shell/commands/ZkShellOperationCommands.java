@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.zookeeper.data.Stat;
 import org.fusesource.jansi.Ansi;
+import org.mvnsearch.zookeeper.shell.converters.ZkCommandEnum;
 import org.mvnsearch.zookeeper.shell.service.ZooKeeperService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,8 +154,8 @@ public class ZkShellOperationCommands implements CommandMarker {
         }
     }
 
-    @CliCommand(value = "server", help = "Show node content")
-    public String server(@CliOption(key = {""}, mandatory = true, help = "Node name") ZkCommand command) {
+    @CliCommand(value = "server", help = "Execute command")
+    public String server(@CliOption(key = {""}, mandatory = true, help = "Command name") final ZkCommand command) {
         try {
             return zooKeeperService.executeCommand(command.getName());
         } catch (Exception e) {
