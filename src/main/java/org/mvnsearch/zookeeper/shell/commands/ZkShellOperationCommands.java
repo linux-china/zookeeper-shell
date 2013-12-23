@@ -88,7 +88,7 @@ public class ZkShellOperationCommands implements CommandMarker {
             log.error("cd", e);
             return wrappedAsRed(e.getMessage());
         }
-        return "";
+        return null;
     }
 
     /**
