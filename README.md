@@ -14,6 +14,7 @@ New ZooKeeper shell just like to bash to operate with ZooKeeper.
 * create or update: echo "" > demo.txt
 * file:
 * ZooKeeper commands: stat
+* Completion for directory and file
 
 ### How to debug app
 
