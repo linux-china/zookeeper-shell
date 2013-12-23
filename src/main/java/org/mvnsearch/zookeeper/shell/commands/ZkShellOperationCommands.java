@@ -174,6 +174,16 @@ public class ZkShellOperationCommands implements CommandMarker {
         }
     }
 
+    @CliCommand(value = "echo", help = "Update content")
+    public String echo(@CliOption(key = {""}, mandatory = true, help = "Node name") String content) {
+        try {
+            return content;
+        } catch (Exception e) {
+            log.error("echo", e);
+            return wrappedAsRed(e.getMessage());
+        }
+    }
+
     /**
      * wrapped as red with Jansi
      *
