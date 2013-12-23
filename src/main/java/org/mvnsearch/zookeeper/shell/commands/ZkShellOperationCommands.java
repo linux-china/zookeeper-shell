@@ -16,6 +16,7 @@ import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -75,21 +76,7 @@ public class ZkShellOperationCommands implements CommandMarker {
     @CliCommand(value = "cd", help = "Change Path")
     public String cd(@CliOption(key = {""}, mandatory = true, help = "Directory") String path) {
         try {
-            String destPath = "/";
-            // cd abolute path
-            if (path.startsWith("/")) {
-                destPath = path;
-            } else if (path.equals("-")) {  //previous path
-                destPath = previousPath;
-            } else if (path.startsWith(".")) {  //relative path
-                if (path.startsWith("../")) {
-                    destPath = currentPath.substring(0, currentPath.lastIndexOf("/"));
-                } else {
-                    destPath = endWith(currentPath, "/") + path.substring(currentPath.lastIndexOf("./") + 2);
-                }
-            } else {
-                destPath = endWith(currentPath, "/") + path;
-            }
+            String destPath = getAbsolutePath(path);
             Stat stat = zooKeeperService.getCurator().checkExists().forPath(destPath);
             if (stat != null) {
                 previousPath = currentPath;
@@ -98,7 +85,7 @@ public class ZkShellOperationCommands implements CommandMarker {
                 return wrappedAsRed("Destination not existed: " + destPath);
             }
         } catch (Exception e) {
-            log.error("start", e);
+            log.error("cd", e);
             return wrappedAsRed(e.getMessage());
         }
         return "";
@@ -110,15 +97,68 @@ public class ZkShellOperationCommands implements CommandMarker {
      * @return stop status
      */
     @CliCommand(value = "ls", help = "List directories or files")
-    public String ls(@CliOption(key = {""}, mandatory = false, help = "Directory") String path) {
+    public String ls(@CliOption(key = {""}, mandatory = false, help = "Node path") String path) {
         try {
-            List<String> children = zooKeeperService.getCurator().getChildren().forPath(currentPath);
+            List<String> children = zooKeeperService.getCurator().getChildren().forPath(path);
             if (children.isEmpty()) {
                 return "No children found!";
             }
             return StringUtils.join(children, SystemUtils.LINE_SEPARATOR);
         } catch (Exception e) {
+            log.error("ls", e);
+            return wrappedAsRed(e.getMessage());
+        }
+    }
+
+    /**
+     * stop aria2
+     *
+     * @return stop status
+     */
+    @SuppressWarnings("StringConcatenationInsideStringBufferAppend")
+    @CliCommand(value = "stat", help = "Show node stat")
+    public String stat(@CliOption(key = {""}, mandatory = true, help = "Node name") String path) {
+        try {
+            Stat stat = zooKeeperService.getCurator().checkExists().forPath(getAbsolutePath(path));
+            StringBuilder buf = new StringBuilder();
+            buf.append("cZxid = " + stat.getCzxid() + SystemUtils.LINE_SEPARATOR);
+            buf.append("ctime = " + new Date(stat.getCtime()).toString() + SystemUtils.LINE_SEPARATOR);
+            buf.append("mZxid = " + stat.getMzxid() + SystemUtils.LINE_SEPARATOR);
+            buf.append("mtime = " + new Date(stat.getMtime()).toString() + SystemUtils.LINE_SEPARATOR);
+            buf.append("pZxid = " + stat.getPzxid() + SystemUtils.LINE_SEPARATOR);
+            buf.append("cversion = " + stat.getCversion() + SystemUtils.LINE_SEPARATOR);
+            buf.append("dataVersion = " + stat.getVersion() + SystemUtils.LINE_SEPARATOR);
+            buf.append("aclVersion = " + stat.getAversion() + SystemUtils.LINE_SEPARATOR);
+            if (stat.getEphemeralOwner() > 0) {
+                buf.append("ephemeralOwner = " + stat.getEphemeralOwner() + SystemUtils.LINE_SEPARATOR);
+            }
+            buf.append("dataLength = " + stat.getDataLength() + SystemUtils.LINE_SEPARATOR);
+            buf.append("numChildren = " + stat.getNumChildren() + SystemUtils.LINE_SEPARATOR);
+            return buf.toString();
+        } catch (Exception e) {
             log.error("start", e);
+            return wrappedAsRed(e.getMessage());
+        }
+    }
+
+    @CliCommand(value = "cat", help = "Show node content")
+    public String cat(@CliOption(key = {""}, mandatory = true, help = "Node name") String path) {
+        try {
+            byte[] content = zooKeeperService.getCurator().getData().forPath(getAbsolutePath(path));
+            return new String(content);
+        } catch (Exception e) {
+            log.error("cat", e);
+            return wrappedAsRed(e.getMessage());
+        }
+    }
+
+    @CliCommand(value = "touch", help = "Create node")
+    public String touch(@CliOption(key = {""}, mandatory = true, help = "Node name") String name) {
+        try {
+            zooKeeperService.getCurator().create().forPath(getAbsolutePath(name), new byte[0]);
+            return stat(name);
+        } catch (Exception e) {
+            log.error("cat", e);
             return wrappedAsRed(e.getMessage());
         }
     }
@@ -142,6 +182,25 @@ public class ZkShellOperationCommands implements CommandMarker {
      */
     private String wrappedAsYellow(String text) {
         return Ansi.ansi().fg(Ansi.Color.YELLOW).a(text).toString();
+    }
+
+    public String getAbsolutePath(String path) {
+        String destPath = "/";
+        // cd abolute path
+        if (path.startsWith("/")) {
+            destPath = path;
+        } else if (path.equals("-")) {  //previous path
+            destPath = previousPath;
+        } else if (path.startsWith(".")) {  //relative path
+            if (path.startsWith("../")) {
+                destPath = currentPath.substring(0, currentPath.lastIndexOf("/"));
+            } else {
+                destPath = endWith(currentPath, "/") + path.substring(currentPath.lastIndexOf("./") + 2);
+            }
+        } else {
+            destPath = endWith(currentPath, "/") + path;
+        }
+        return destPath;
     }
 
     public String endWith(String path, String end) {
