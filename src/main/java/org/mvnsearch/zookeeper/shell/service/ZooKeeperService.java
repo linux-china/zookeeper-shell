@@ -13,4 +13,5 @@ public interface ZooKeeperService {
 
     public CuratorFramework getCurator();
 
+    public String executeCommand(String command) throws Exception;
 }
