@@ -117,7 +117,7 @@ public class ZkShellOperationCommands implements CommandMarker {
      * @return stop status
      */
     @SuppressWarnings("StringConcatenationInsideStringBufferAppend")
-    @CliCommand(value = "stat", help = "Show node stat")
+    @CliCommand(value = "stat", help = "Show node or server stat")
     public String stat(@CliOption(key = {""}, mandatory = false, help = "Node name") String path) {
         try {
             if (StringUtils.isEmpty(path)) {
