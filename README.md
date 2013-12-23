@@ -9,10 +9,9 @@ New ZooKeeper shell just like to bash to operate with ZooKeeper.
 * ls: list directory and files
 * cd: change current path. support cd -
 * cat: display content
-* mkdir create directory
 * create: touch demo.txt
 * create or update: echo "" > demo.txt
-* file:
+* stat: stat file
 * ZooKeeper commands: stat
 * Completion for directory and file
 
