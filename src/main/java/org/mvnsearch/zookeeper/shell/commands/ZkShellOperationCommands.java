@@ -99,7 +99,8 @@ public class ZkShellOperationCommands implements CommandMarker {
     @CliCommand(value = "ls", help = "List directories or files")
     public String ls(@CliOption(key = {""}, mandatory = false, help = "Node path") String path) {
         try {
-            List<String> children = zooKeeperService.getCurator().getChildren().forPath(path);
+            String destPath = getAbsolutePath(path);
+            List<String> children = zooKeeperService.getCurator().getChildren().forPath(destPath);
             if (children.isEmpty()) {
                 return "No children found!";
             }
@@ -133,10 +134,10 @@ public class ZkShellOperationCommands implements CommandMarker {
                 buf.append("ephemeralOwner = " + stat.getEphemeralOwner() + SystemUtils.LINE_SEPARATOR);
             }
             buf.append("dataLength = " + stat.getDataLength() + SystemUtils.LINE_SEPARATOR);
-            buf.append("numChildren = " + stat.getNumChildren() + SystemUtils.LINE_SEPARATOR);
+            buf.append("numChildren = " + stat.getNumChildren());
             return buf.toString();
         } catch (Exception e) {
-            log.error("start", e);
+            log.error("stat", e);
             return wrappedAsRed(e.getMessage());
         }
     }
@@ -185,6 +186,9 @@ public class ZkShellOperationCommands implements CommandMarker {
     }
 
     public String getAbsolutePath(String path) {
+        if (StringUtils.isEmpty(path)) {
+            return currentPath;
+        }
         String destPath = "/";
         // cd abolute path
         if (path.startsWith("/")) {
