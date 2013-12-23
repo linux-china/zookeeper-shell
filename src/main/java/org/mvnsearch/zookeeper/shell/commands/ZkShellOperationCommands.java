@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.zookeeper.data.Stat;
 import org.fusesource.jansi.Ansi;
-import org.mvnsearch.zookeeper.shell.converters.ZkCommandEnum;
 import org.mvnsearch.zookeeper.shell.service.ZooKeeperService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,8 +118,11 @@ public class ZkShellOperationCommands implements CommandMarker {
      */
     @SuppressWarnings("StringConcatenationInsideStringBufferAppend")
     @CliCommand(value = "stat", help = "Show node stat")
-    public String stat(@CliOption(key = {""}, mandatory = true, help = "Node name") String path) {
+    public String stat(@CliOption(key = {""}, mandatory = false, help = "Node name") String path) {
         try {
+            if (StringUtils.isEmpty(path)) {
+                return zooKeeperService.executeCommand("stat");
+            }
             Stat stat = zooKeeperService.getCurator().checkExists().forPath(getAbsolutePath(path));
             StringBuilder buf = new StringBuilder();
             buf.append("cZxid = " + stat.getCzxid() + SystemUtils.LINE_SEPARATOR);
