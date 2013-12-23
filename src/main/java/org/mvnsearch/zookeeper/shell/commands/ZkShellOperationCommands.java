@@ -153,6 +153,16 @@ public class ZkShellOperationCommands implements CommandMarker {
         }
     }
 
+    @CliCommand(value = "server", help = "Show node content")
+    public String server(@CliOption(key = {""}, mandatory = true, help = "Node name") ZkCommand command) {
+        try {
+            return zooKeeperService.executeCommand(command.getName());
+        } catch (Exception e) {
+            log.error("server", e);
+            return wrappedAsRed(e.getMessage());
+        }
+    }
+
     @CliCommand(value = "touch", help = "Create node")
     public String touch(@CliOption(key = {""}, mandatory = true, help = "Node name") String name) {
         try {
