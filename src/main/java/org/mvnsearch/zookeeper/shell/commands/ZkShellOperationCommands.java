@@ -177,6 +177,11 @@ public class ZkShellOperationCommands implements CommandMarker {
         }
     }
 
+    @CliCommand(value = "mkdir", help = "Create node")
+    public String mkdir(@CliOption(key = {""}, mandatory = true, help = "Node name") String name) {
+        return touch(name);
+    }
+
     @CliCommand(value = "echo", help = "Update content")
     public String echo(@CliOption(key = {""}, mandatory = true, help = "Node name") String content) {
         try {
