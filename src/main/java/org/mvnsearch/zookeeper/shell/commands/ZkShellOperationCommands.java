@@ -183,9 +183,19 @@ public class ZkShellOperationCommands implements CommandMarker {
     }
 
     @CliCommand(value = "echo", help = "Update content")
-    public String echo(@CliOption(key = {""}, mandatory = true, help = "Node name") String content) {
+    public String echo(@CliOption(key = {"node"}, mandatory = true, help = "Node Name") String nodePath,
+                       @CliOption(key = {""}, mandatory = true, help = "Node Content") String content) {
         try {
-            return content;
+            String absolutePath = getAbsolutePath(nodePath);
+            Stat stat = zooKeeperService.getCurator().checkExists().forPath(absolutePath);
+            if (stat == null) {
+                zooKeeperService.getCurator().create().forPath(absolutePath, content.getBytes());
+                return "'" + absolutePath + "' created with given content!";
+            } else {
+                zooKeeperService.getCurator().setData().forPath(absolutePath, content.getBytes());
+                return "'" + absolutePath + "' updated with given content!";
+            }
+
         } catch (Exception e) {
             log.error("echo", e);
             return wrappedAsRed(e.getMessage());
