@@ -2,7 +2,9 @@ package org.mvnsearch.zookeeper.shell.commands;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.data.Stat;
 import org.fusesource.jansi.Ansi;
 import org.mvnsearch.zookeeper.shell.service.ZooKeeperService;
@@ -198,7 +200,28 @@ public class ZkShellOperationCommands implements CommandMarker {
                 zooKeeperService.getCurator().setData().forPath(absolutePath, content.getBytes());
                 return "'" + absolutePath + "' updated with given content!";
             }
+        } catch (Exception e) {
+            log.error("echo", e);
+            return wrappedAsRed(e.getMessage());
+        }
+    }
 
+    @CliCommand(value = "watch", help = "Watch node")
+    public String watch(@CliOption(key = {""}, mandatory = true, help = "Node name") String name) {
+        try {
+            final String absolutePath = getAbsolutePath(name);
+            Stat stat = zooKeeperService.getCurator().checkExists().forPath(absolutePath);
+            if (stat == null) {
+                return "'" + absolutePath + "' not exists.";
+            } else {
+                zooKeeperService.getCurator().getData().usingWatcher(new CuratorWatcher() {
+                    @Override
+                    public void process(WatchedEvent watchedEvent) throws Exception {
+                        System.out.println("'" + absolutePath + "' " + watchedEvent.getType().name());
+                    }
+                }).forPath(absolutePath);
+                return "'" + absolutePath + "' Watched";
+            }
         } catch (Exception e) {
             log.error("echo", e);
             return wrappedAsRed(e.getMessage());
