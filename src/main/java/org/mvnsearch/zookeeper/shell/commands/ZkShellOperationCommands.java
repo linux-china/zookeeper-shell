@@ -2,6 +2,7 @@ package org.mvnsearch.zookeeper.shell.commands;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
 import org.fusesource.jansi.Ansi;
 import org.mvnsearch.zookeeper.shell.service.ZooKeeperService;
@@ -167,9 +168,11 @@ public class ZkShellOperationCommands implements CommandMarker {
     }
 
     @CliCommand(value = "touch", help = "Create node")
-    public String touch(@CliOption(key = {""}, mandatory = true, help = "Node name") String name) {
+    public String touch(
+            @CliOption(key = {"mode"}, mandatory = true, help = "Node name") ZkNodeCreateMode mode,
+            @CliOption(key = {""}, mandatory = true, help = "Node name") String name) {
         try {
-            zooKeeperService.getCurator().create().forPath(getAbsolutePath(name), new byte[0]);
+            zooKeeperService.getCurator().create().withMode(mode.toZkMode()).forPath(getAbsolutePath(name), new byte[0]);
             return stat(name);
         } catch (Exception e) {
             log.error("cat", e);
@@ -179,7 +182,7 @@ public class ZkShellOperationCommands implements CommandMarker {
 
     @CliCommand(value = "mkdir", help = "Create node")
     public String mkdir(@CliOption(key = {""}, mandatory = true, help = "Node name") String name) {
-        return touch(name);
+        return touch(ZkNodeCreateMode.persistent, name);
     }
 
     @CliCommand(value = "echo", help = "Update content")
