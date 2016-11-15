@@ -57,7 +57,7 @@ public class ZkShellOperationCommands implements CommandMarker {
      *
      * @return result
      */
-    @CliCommand(value = "connect", help = "Connect with aria2 through xml-rpc")
+    @CliCommand(value = "connect", help = "Connect zookeeper, format as localhost:2181")
     public String connect(@CliOption(key = {"server"}, mandatory = false, help = "Server") String server) {
         try {
             if (StringUtils.isEmpty(server)) {
