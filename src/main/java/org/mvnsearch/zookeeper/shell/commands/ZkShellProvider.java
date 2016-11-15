@@ -66,7 +66,6 @@ public class ZkShellProvider extends DefaultBannerProvider implements CommandMar
      *
      * @return name
      */
-    @Override
     public String name() {
         return "zookeeper-shell";
     }
