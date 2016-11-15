@@ -45,13 +45,9 @@ public class ZkShellPromptProvider extends DefaultPromptProvider implements Init
         return "[" + prompt + ":" + currentPath + "]" + symbol;
     }
 
-    /**
-     * name
-     *
-     * @return name
-     */
     @Override
-    public String name() {
+    public String getProviderName() {
         return "zookeeper-shell-java-cli-prompt-provider";
     }
+
 }
