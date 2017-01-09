@@ -3,7 +3,6 @@ package org.mvnsearch.zookeeper.shell.commands;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.curator.framework.api.CuratorWatcher;
-import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.data.Stat;
 import org.fusesource.jansi.Ansi;
@@ -49,7 +48,7 @@ public class ZkShellOperationCommands implements CommandMarker {
      */
     @PostConstruct
     public void init() {
-        String message = connect("localhost:2181");
+        System.out.println(connect("localhost:2181"));
     }
 
     /**
@@ -58,17 +57,17 @@ public class ZkShellOperationCommands implements CommandMarker {
      * @return result
      */
     @CliCommand(value = "connect", help = "Connect zookeeper, format as localhost:2181")
-    public String connect(@CliOption(key = {"server"}, mandatory = false, help = "Server") String server) {
+    public String connect(@CliOption(key = {""}, mandatory = true, help = "ZooKeeper Hosts") String hosts) {
         try {
-            if (StringUtils.isEmpty(server)) {
-                server = "localhost:2181";
+            if (StringUtils.isEmpty(hosts)) {
+                hosts = "localhost:2181";
             }
-            zooKeeperService.connect(server);
+            zooKeeperService.connect(hosts);
         } catch (Exception e) {
             log.error("connect", e);
             return wrappedAsRed(e.getMessage());
         }
-        return "Connected with " + server;
+        return "Connected with " + hosts;
     }
 
     /**
