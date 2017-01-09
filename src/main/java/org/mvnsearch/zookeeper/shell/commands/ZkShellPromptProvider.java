@@ -2,7 +2,8 @@ package org.mvnsearch.zookeeper.shell.commands;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.shell.plugin.support.DefaultPromptProvider;
+import org.springframework.core.annotation.Order;
+import org.springframework.shell.plugin.PromptProvider;
 import org.springframework.shell.support.util.OsUtils;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +13,8 @@ import org.springframework.stereotype.Component;
  * @author linux_china
  */
 @Component
-public class ZkShellPromptProvider extends DefaultPromptProvider implements InitializingBean {
+@Order(1)
+public class ZkShellPromptProvider implements PromptProvider, InitializingBean {
     /**
      * prompt
      */
