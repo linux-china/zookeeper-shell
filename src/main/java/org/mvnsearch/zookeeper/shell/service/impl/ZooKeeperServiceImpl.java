@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Zoo Keeper Service implementation
@@ -44,9 +45,9 @@ public class ZooKeeperServiceImpl implements ZooKeeperService {
 
     public String executeCommand(String command) throws Exception {
         String[] parts = server.split(":");
-        Socket sock = new Socket(parts[0], Integer.valueOf(parts[1]));
+        Socket sock = new Socket(parts[0], Integer.parseInt(parts[1]));
         IOUtils.write(command.getBytes(), sock.getOutputStream());
-        String content = IOUtils.toString(sock.getInputStream());
+        String content = IOUtils.toString(sock.getInputStream(), StandardCharsets.UTF_8);
         if (!sock.isClosed()) {
             sock.close();
         }
