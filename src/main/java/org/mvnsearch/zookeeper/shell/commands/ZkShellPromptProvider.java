@@ -1,10 +1,11 @@
 package org.mvnsearch.zookeeper.shell.commands;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jline.utils.AttributedString;
+import org.jline.utils.OSUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.annotation.Order;
-import org.springframework.shell.plugin.PromptProvider;
-import org.springframework.shell.support.util.OsUtils;
+import org.springframework.shell.jline.PromptProvider;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,7 +32,7 @@ public class ZkShellPromptProvider implements PromptProvider, InitializingBean {
      */
     public void afterPropertiesSet() throws Exception {
         //if Windows OS, adjust symbo to '>'
-        if ((OsUtils.isWindows())) {
+        if ((OSUtils.IS_WINDOWS)) {
             symbol = ">";
         }
     }
@@ -42,14 +43,10 @@ public class ZkShellPromptProvider implements PromptProvider, InitializingBean {
      * @return prompt
      */
     @Override
-    public String getPrompt() {
+    public AttributedString getPrompt() {
         String currentPath = StringUtils.defaultIfEmpty(ZkShellOperationCommands.currentPath, "/");
-        return "[" + prompt + ":" + currentPath + "]" + symbol;
+        return new AttributedString("[" + prompt + ":" + currentPath + "]" + symbol);
     }
 
-    @Override
-    public String getProviderName() {
-        return "zookeeper-shell-java-cli-prompt-provider";
-    }
 
 }

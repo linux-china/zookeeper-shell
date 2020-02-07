@@ -1,7 +1,6 @@
 package org.mvnsearch.zookeeper.shell.commands;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.data.Stat;
@@ -12,10 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.shell.core.CommandMarker;
-import org.springframework.shell.core.annotation.CliCommand;
-import org.springframework.shell.core.annotation.CliOption;
-import org.springframework.stereotype.Component;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 
 import javax.annotation.PostConstruct;
 import java.util.Date;
@@ -26,9 +24,9 @@ import java.util.List;
  *
  * @author linux_china
  */
-@Component
+@ShellComponent
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class ZkShellOperationCommands implements CommandMarker {
+public class ZkShellOperationCommands {
     public static String currentPath = "/";
     public static String previousPath = "/";
     /**
@@ -38,7 +36,7 @@ public class ZkShellOperationCommands implements CommandMarker {
     /**
      * The platform-specific line separator.
      */
-    public static final String LINE_SEPARATOR = SystemUtils.LINE_SEPARATOR;
+    public static final String LINE_SEPARATOR = System.lineSeparator();
 
     @Autowired
     private ZooKeeperService zooKeeperService;
@@ -56,8 +54,8 @@ public class ZkShellOperationCommands implements CommandMarker {
      *
      * @return result
      */
-    @CliCommand(value = "connect", help = "Connect zookeeper, format as localhost:2181")
-    public String connect(@CliOption(key = {""}, mandatory = true, help = "ZooKeeper Hosts") String hosts) {
+    @ShellMethod(key = "connect", value = "Connect zookeeper, format as localhost:2181")
+    public String connect(@ShellOption(help = "ZooKeeper Hosts") String hosts) {
         try {
             if (StringUtils.isEmpty(hosts)) {
                 hosts = "localhost:2181";
@@ -75,8 +73,8 @@ public class ZkShellOperationCommands implements CommandMarker {
      *
      * @return stop status
      */
-    @CliCommand(value = "cd", help = "Change Path")
-    public String cd(@CliOption(key = {""}, mandatory = true, help = "Directory") String path) {
+    @ShellMethod(key = "cd", value = "Change Path")
+    public String cd(@ShellOption(help = "Directory") String path) {
         try {
             String destPath = getAbsolutePath(path);
             Stat stat = zooKeeperService.getCurator().checkExists().forPath(destPath);
@@ -98,15 +96,15 @@ public class ZkShellOperationCommands implements CommandMarker {
      *
      * @return stop status
      */
-    @CliCommand(value = "ls", help = "List directories or files")
-    public String ls(@CliOption(key = {""}, mandatory = false, help = "Node path") String path) {
+    @ShellMethod(key = "ls", value = "List directories or files")
+    public String ls(@ShellOption(help = "Node path",defaultValue = "") String path) {
         try {
             String destPath = getAbsolutePath(path);
             List<String> children = zooKeeperService.getCurator().getChildren().forPath(destPath);
             if (children.isEmpty()) {
                 return "No children found!";
             }
-            return StringUtils.join(children, SystemUtils.LINE_SEPARATOR);
+            return StringUtils.join(children, LINE_SEPARATOR);
         } catch (Exception e) {
             log.error("ls", e);
             return wrappedAsRed(e.getMessage());
@@ -119,26 +117,26 @@ public class ZkShellOperationCommands implements CommandMarker {
      * @return stop status
      */
     @SuppressWarnings("StringConcatenationInsideStringBufferAppend")
-    @CliCommand(value = "stat", help = "Show node or server stat")
-    public String stat(@CliOption(key = {""}, mandatory = false, help = "Node name") String path) {
+    @ShellMethod(key = "stat", value = "Show node or server stat")
+    public String stat(@ShellOption(help = "Node name") String path) {
         try {
             if (StringUtils.isEmpty(path)) {
                 return zooKeeperService.executeCommand("stat");
             }
             Stat stat = zooKeeperService.getCurator().checkExists().forPath(getAbsolutePath(path));
             StringBuilder buf = new StringBuilder();
-            buf.append("cZxid = " + stat.getCzxid() + SystemUtils.LINE_SEPARATOR);
-            buf.append("ctime = " + new Date(stat.getCtime()).toString() + SystemUtils.LINE_SEPARATOR);
-            buf.append("mZxid = " + stat.getMzxid() + SystemUtils.LINE_SEPARATOR);
-            buf.append("mtime = " + new Date(stat.getMtime()).toString() + SystemUtils.LINE_SEPARATOR);
-            buf.append("pZxid = " + stat.getPzxid() + SystemUtils.LINE_SEPARATOR);
-            buf.append("cversion = " + stat.getCversion() + SystemUtils.LINE_SEPARATOR);
-            buf.append("dataVersion = " + stat.getVersion() + SystemUtils.LINE_SEPARATOR);
-            buf.append("aclVersion = " + stat.getAversion() + SystemUtils.LINE_SEPARATOR);
+            buf.append("cZxid = " + stat.getCzxid() + LINE_SEPARATOR);
+            buf.append("ctime = " + new Date(stat.getCtime()).toString() + LINE_SEPARATOR);
+            buf.append("mZxid = " + stat.getMzxid() + LINE_SEPARATOR);
+            buf.append("mtime = " + new Date(stat.getMtime()).toString() + LINE_SEPARATOR);
+            buf.append("pZxid = " + stat.getPzxid() + LINE_SEPARATOR);
+            buf.append("cversion = " + stat.getCversion() + LINE_SEPARATOR);
+            buf.append("dataVersion = " + stat.getVersion() + LINE_SEPARATOR);
+            buf.append("aclVersion = " + stat.getAversion() + LINE_SEPARATOR);
             if (stat.getEphemeralOwner() > 0) {
-                buf.append("ephemeralOwner = " + stat.getEphemeralOwner() + SystemUtils.LINE_SEPARATOR);
+                buf.append("ephemeralOwner = " + stat.getEphemeralOwner() + LINE_SEPARATOR);
             }
-            buf.append("dataLength = " + stat.getDataLength() + SystemUtils.LINE_SEPARATOR);
+            buf.append("dataLength = " + stat.getDataLength() + LINE_SEPARATOR);
             buf.append("numChildren = " + stat.getNumChildren());
             return buf.toString();
         } catch (Exception e) {
@@ -147,8 +145,8 @@ public class ZkShellOperationCommands implements CommandMarker {
         }
     }
 
-    @CliCommand(value = "cat", help = "Show node content")
-    public String cat(@CliOption(key = {""}, mandatory = true, help = "Node name") String path) {
+    @ShellMethod(key = "cat", value = "Show node content")
+    public String cat(@ShellOption(help = "Node name") String path) {
         try {
             byte[] content = zooKeeperService.getCurator().getData().forPath(getAbsolutePath(path));
             return new String(content);
@@ -158,8 +156,8 @@ public class ZkShellOperationCommands implements CommandMarker {
         }
     }
 
-    @CliCommand(value = "server", help = "Execute command")
-    public String server(@CliOption(key = {""}, mandatory = true, help = "Command name") final ZkCommand command) {
+    @ShellMethod(key = "server", value = "Execute command")
+    public String server(@ShellOption(help = "Command name") final ZkCommand command) {
         try {
             return zooKeeperService.executeCommand(command.getName());
         } catch (Exception e) {
@@ -168,10 +166,10 @@ public class ZkShellOperationCommands implements CommandMarker {
         }
     }
 
-    @CliCommand(value = "touch", help = "Create node")
+    @ShellMethod(key = "touch", value = "Create node")
     public String touch(
-            @CliOption(key = {"mode"}, mandatory = true, help = "Node name") ZkNodeCreateMode mode,
-            @CliOption(key = {""}, mandatory = true, help = "Node name") String name) {
+            @ShellOption(value = {"mode"}, help = "Node name") ZkNodeCreateMode mode,
+            @ShellOption(help = "Node name") String name) {
         try {
             zooKeeperService.getCurator().create().withMode(mode.toZkMode()).forPath(getAbsolutePath(name), new byte[0]);
             return stat(name);
@@ -181,14 +179,14 @@ public class ZkShellOperationCommands implements CommandMarker {
         }
     }
 
-    @CliCommand(value = "mkdir", help = "Create node")
-    public String mkdir(@CliOption(key = {""}, mandatory = true, help = "Node name") String name) {
+    @ShellMethod(key = "mkdir", value = "Create node")
+    public String mkdir(@ShellOption(help = "Node name") String name) {
         return touch(ZkNodeCreateMode.persistent, name);
     }
 
-    @CliCommand(value = "echo", help = "Update content")
-    public String echo(@CliOption(key = {"node"}, mandatory = true, help = "Node Name") String nodePath,
-                       @CliOption(key = {""}, mandatory = true, help = "Node Content") String content) {
+    @ShellMethod(key = "echo", value = "Update content")
+    public String echo(@ShellOption(value = {"node"}, help = "Node Name") String nodePath,
+                       @ShellOption(help = "Node Content") String content) {
         try {
             String absolutePath = getAbsolutePath(nodePath);
             Stat stat = zooKeeperService.getCurator().checkExists().forPath(absolutePath);
@@ -205,8 +203,8 @@ public class ZkShellOperationCommands implements CommandMarker {
         }
     }
 
-    @CliCommand(value = "watch", help = "Watch node")
-    public String watch(@CliOption(key = {""}, mandatory = true, help = "Node name") String name) {
+    @ShellMethod(key = "watch", value = "Watch node")
+    public String watch(@ShellOption(help = "Node name") String name) {
         try {
             final String absolutePath = getAbsolutePath(name);
             Stat stat = zooKeeperService.getCurator().checkExists().forPath(absolutePath);

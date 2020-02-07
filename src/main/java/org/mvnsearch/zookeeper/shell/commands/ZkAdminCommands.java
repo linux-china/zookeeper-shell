@@ -7,79 +7,77 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.shell.core.CommandMarker;
-import org.springframework.shell.core.annotation.CliCommand;
-import org.springframework.stereotype.Component;
-
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
 
 /**
  * ZooKeeper admin command
  *
  * @author linux_china
  */
-@Component
+@ShellComponent
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class ZkAdminCommands implements CommandMarker {
+public class ZkAdminCommands {
     private Logger log = LoggerFactory.getLogger(ZkShellOperationCommands.class);
     @Autowired
     private ZooKeeperService zooKeeperService;
 
-    @CliCommand(value = "conf", help = "Print details about serving configuration")
+    @ShellMethod(key = "conf", value = "Print details about serving configuration")
     public String conf() {
         return executeCommand("conf");
     }
 
-    @CliCommand(value = "cons", help = "List full connection/session details for all clients connected to this server")
+    @ShellMethod(key = "cons", value = "List full connection/session details for all clients connected to this server")
     public String cons() {
         return executeCommand("cons");
     }
 
-    @CliCommand(value = "crst", help = "crst")
+    @ShellMethod(key = "crst", value = "crst")
     public String crst() {
         return executeCommand("crst");
     }
 
-    @CliCommand(value = "dump", help = "Lists the outstanding sessions and ephemeral nodes. This only works on the leader.")
+    @ShellMethod(key = "dump", value = "Lists the outstanding sessions and ephemeral nodes. This only works on the leader.")
     public String dump() {
         return executeCommand("dump");
     }
 
-    @CliCommand(value = "envi", help = "List full connection/session details for all clients connected to this server")
+    @ShellMethod(key = "envi", value = "List full connection/session details for all clients connected to this server")
     public String envi() {
         return executeCommand("envi");
     }
 
-    @CliCommand(value = "ruok", help = "Tests if server is running in a non-error state")
+    @ShellMethod(key = "ruok", value = "Tests if server is running in a non-error state")
     public String ruok() {
         return executeCommand("ruok");
     }
 
-    @CliCommand(value = "srst", help = "Reset server statistics")
+    @ShellMethod(key = "srst", value = "Reset server statistics")
     public String srst() {
         return executeCommand("srst");
     }
 
-    @CliCommand(value = "srvr", help = "Lists full details for the server")
+    @ShellMethod(key = "srvr", value = "Lists full details for the server")
     public String srvr() {
         return executeCommand("srvr");
     }
 
-    @CliCommand(value = "wchs", help = "Lists brief information on watches for the server")
+    @ShellMethod(key = "wchs", value = "Lists brief information on watches for the server")
     public String wchs() {
         return executeCommand("wchs");
     }
 
-    @CliCommand(value = "wchc", help = "Lists detailed information on watches for the server, by session")
+    @ShellMethod(key = "wchc", value = "Lists detailed information on watches for the server, by session")
     public String wchc() {
         return executeCommand("wchc");
     }
 
-    @CliCommand(value = "wchp", help = "Lists detailed information on watches for the server, by path")
+    @ShellMethod(key = "wchp", value = "Lists detailed information on watches for the server, by path")
     public String wchp() {
         return executeCommand("wchp");
     }
 
-    @CliCommand(value = "mntr", help = "Outputs a list of variables that could be used for monitoring the health of the cluster")
+    @ShellMethod(key = "mntr", value = "Outputs a list of variables that could be used for monitoring the health of the cluster")
     public String mntr() {
         return executeCommand("mntr");
     }
