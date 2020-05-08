@@ -13,8 +13,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-boot.version>2.2.4.RELEASE</spring-boot.version>
-        <spring-shell.version>2.0.0.RELEASE</spring-shell.version>
+        <spring-boot.version>2.2.7.RELEASE</spring-boot.version>
+        <spring-shell.version>2.0.1.RELEASE</spring-shell.version>
     </properties>
 
     <developers>
@@ -33,12 +33,12 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>18.0.0</version>
+            <version>19.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline</artifactId>
-            <version>3.13.3</version>
+            <version>3.14.1</version>
         </dependency>
         <dependency>
             <groupId>org.fusesource.jansi</groupId>
@@ -48,7 +48,7 @@
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-recipes</artifactId>
-            <version>4.2.0</version>
+            <version>4.3.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
