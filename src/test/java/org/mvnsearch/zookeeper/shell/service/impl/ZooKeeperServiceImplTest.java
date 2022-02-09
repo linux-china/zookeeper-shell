@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
  * @author linux_china
  */
 public class ZooKeeperServiceImplTest {
-    private static ZooKeeperServiceImpl zooKeeperService;
+    private static ZooKeeperServiceImpl zooKeeperService = new ZooKeeperServiceImpl();
 
     @BeforeAll
-    public void setUp() throws Exception {
+    public static void setUp() throws Exception {
 
     }
 
