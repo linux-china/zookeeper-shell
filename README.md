@@ -1,7 +1,11 @@
 ZooKeeper Shell
 ===============================
 New ZooKeeper shell just like to bash to operate with ZooKeeper.
+           
+### How to use?
+Please [install JBang](https://www.jbang.dev/download/) first, then execute: 
 
+`jbang shell@linux-china/zookeeper-shell`
 
 ### Features
 
