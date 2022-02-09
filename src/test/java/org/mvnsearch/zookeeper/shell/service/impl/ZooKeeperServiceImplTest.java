@@ -1,8 +1,8 @@
 package org.mvnsearch.zookeeper.shell.service.impl;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * ZooKeeperServiceImpl test case
@@ -12,7 +12,7 @@ import org.junit.Test;
 public class ZooKeeperServiceImplTest {
     private static ZooKeeperServiceImpl zooKeeperService;
 
-    @BeforeClass
+    @BeforeAll
     public void setUp() throws Exception {
 
     }
@@ -22,7 +22,7 @@ public class ZooKeeperServiceImplTest {
 
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
 
     }
