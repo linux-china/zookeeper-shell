@@ -1,7 +1,7 @@
 {
   "aliases": {
     "shell": {
-      "script-ref": "target/zookeeper-shell-1.0.0-SNAPSHOT.jar",
+      "script-ref": "https://github.com/linux-china/zookeeper-shell/releases/download/0.1.0/zookeeper-shell-0.1.0.jar",
       "java": "17",
       "description": "ZooKeeper Shell"
     }
