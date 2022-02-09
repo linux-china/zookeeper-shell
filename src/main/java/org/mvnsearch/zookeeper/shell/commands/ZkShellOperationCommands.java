@@ -76,6 +76,7 @@ public class ZkShellOperationCommands {
     @ShellMethod(key = "cd", value = "Change Path")
     public String cd(@ShellOption(help = "Directory") String path) {
         try {
+            System.out.println("input path: " + path + " current path: " + currentPath);
             String destPath = getAbsolutePath(path);
             Stat stat = zooKeeperService.getCurator().checkExists().forPath(destPath);
             if (stat != null) {
@@ -97,7 +98,7 @@ public class ZkShellOperationCommands {
      * @return stop status
      */
     @ShellMethod(key = "ls", value = "List directories or files")
-    public String ls(@ShellOption(help = "Node path",defaultValue = "") String path) {
+    public String ls(@ShellOption(help = "Node path", defaultValue = "") String path) {
         try {
             String destPath = getAbsolutePath(path);
             List<String> children = zooKeeperService.getCurator().getChildren().forPath(destPath);
@@ -250,20 +251,23 @@ public class ZkShellOperationCommands {
         if (StringUtils.isEmpty(path)) {
             return currentPath;
         }
-        String destPath = "/";
-        // cd abolute path
+        String destPath;
+        // cd absolute path
         if (path.startsWith("/")) {
             destPath = path;
         } else if (path.equals("-")) {  //previous path
             destPath = previousPath;
         } else if (path.startsWith(".")) {  //relative path
-            if (path.startsWith("../")) {
+            if (path.startsWith("../") || path.startsWith("..")) {
                 destPath = currentPath.substring(0, currentPath.lastIndexOf("/"));
             } else {
                 destPath = endWith(currentPath, "/") + path.substring(currentPath.lastIndexOf("./") + 2);
             }
         } else {
             destPath = endWith(currentPath, "/") + path;
+        }
+        if (destPath.isEmpty()) {
+            destPath = "/";
         }
         return destPath;
     }
