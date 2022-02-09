@@ -18,3 +18,7 @@ New ZooKeeper shell just like to bash to operate with ZooKeeper.
 ### How to debug app
 
     java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -jar target/zookeeper-shell-1.0.0-SNAPSHOT.jar
+                            
+### References
+
+* Spring Shell Reference Documentation: https://docs.spring.io/spring-shell/docs/2.1.0-M2/site/reference/htmlsingle/ 
