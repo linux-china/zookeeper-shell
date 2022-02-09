@@ -1,0 +1,9 @@
+{
+  "aliases": {
+    "shell": {
+      "script-ref": "target/zookeeper-shell-1.0.0-SNAPSHOT.jar",
+      "java": "17",
+      "description": "ZooKeeper Shell"
+    }
+  }
+}
