@@ -71,7 +71,7 @@ public class ZkShellOperationCommands {
      * @return stop status
      */
     @ShellMethod(key = "cd", value = "Change Path")
-    public String cd(@ShellOption(help = "Directory") String path) {
+    public String cd(@ShellOption(help = "Directory", value = "") String path) {
         try {
             String destPath = getAbsolutePath(path);
             Stat stat = zooKeeperService.getCurator().checkExists().forPath(destPath);
@@ -115,7 +115,7 @@ public class ZkShellOperationCommands {
      */
     @SuppressWarnings("StringConcatenationInsideStringBufferAppend")
     @ShellMethod(key = "stat", value = "Show node or server stat")
-    public String stat(@ShellOption(help = "Node name") String path) {
+    public String stat(@ShellOption(help = "Node name", value = "") String path) {
         try {
             if (StringUtils.isEmpty(path)) {
                 return zooKeeperService.executeCommand("stat");
@@ -143,7 +143,7 @@ public class ZkShellOperationCommands {
     }
 
     @ShellMethod(key = "cat", value = "Show node content")
-    public String cat(@ShellOption(help = "Node name") String path) {
+    public String cat(@ShellOption(help = "Node name", value = "") String path) {
         try {
             byte[] content = zooKeeperService.getCurator().getData().forPath(getAbsolutePath(path));
             return new String(content);
@@ -201,7 +201,7 @@ public class ZkShellOperationCommands {
     }
 
     @ShellMethod(key = "watch", value = "Watch node")
-    public String watch(@ShellOption(help = "Node name") String name) {
+    public String watch(@ShellOption(help = "Node name", value = "") String name) {
         try {
             final String absolutePath = getAbsolutePath(name);
             Stat stat = zooKeeperService.getCurator().checkExists().forPath(absolutePath);
