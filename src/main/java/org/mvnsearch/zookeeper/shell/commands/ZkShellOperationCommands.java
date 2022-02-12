@@ -29,10 +29,7 @@ import java.util.List;
 public class ZkShellOperationCommands {
     public static String currentPath = "/";
     public static String previousPath = "/";
-    /**
-     * log
-     */
-    private Logger log = LoggerFactory.getLogger(ZkShellOperationCommands.class);
+    private final Logger log = LoggerFactory.getLogger(ZkShellOperationCommands.class);
     /**
      * The platform-specific line separator.
      */
@@ -76,7 +73,6 @@ public class ZkShellOperationCommands {
     @ShellMethod(key = "cd", value = "Change Path")
     public String cd(@ShellOption(help = "Directory") String path) {
         try {
-            System.out.println("input path: " + path + " current path: " + currentPath);
             String destPath = getAbsolutePath(path);
             Stat stat = zooKeeperService.getCurator().checkExists().forPath(destPath);
             if (stat != null) {
@@ -247,7 +243,7 @@ public class ZkShellOperationCommands {
         return Ansi.ansi().fg(Ansi.Color.YELLOW).a(text).toString();
     }
 
-    public String getAbsolutePath(String path) {
+    public static String getAbsolutePath(String path) {
         if (StringUtils.isEmpty(path)) {
             return currentPath;
         }
@@ -272,7 +268,7 @@ public class ZkShellOperationCommands {
         return destPath;
     }
 
-    public String endWith(String path, String end) {
+    public static String endWith(String path, String end) {
         return path.endsWith(end) ? path : path + end;
     }
 
