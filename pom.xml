@@ -16,8 +16,8 @@
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <spring-boot.version>2.6.3</spring-boot.version>
-        <spring-shell.version>2.1.0-M2</spring-shell.version>
+        <spring-boot.version>2.6.4</spring-boot.version>
+        <spring-shell.version>2.1.0-M3</spring-shell.version>
     </properties>
 
     <developers>
@@ -47,6 +47,11 @@
             <groupId>org.fusesource.jansi</groupId>
             <artifactId>jansi</artifactId>
             <version>2.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.0.1-jre</version>
         </dependency>
         <dependency>
             <groupId>org.apache.curator</groupId>
