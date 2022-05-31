@@ -9,8 +9,11 @@ import org.mvnsearch.zookeeper.shell.service.ZooKeeperService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.shell.command.CommandContext;
+import org.springframework.shell.command.CommandRegistration;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -18,6 +21,7 @@ import org.springframework.shell.standard.ShellOption;
 import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * ZooKeeper shell operation commands
@@ -65,62 +69,58 @@ public class ZkShellOperationCommands {
         return "Connected with " + hosts;
     }
 
-    /**
-     * stop aria2
-     *
-     * @return stop status
-     */
-    @ShellMethod(key = "cd", value = "Change Path")
-    public String cd(@ShellOption(help = "Directory") String path) {
-        try {
-            String destPath = getAbsolutePath(path);
-            Stat stat = zooKeeperService.getCurator().checkExists().forPath(destPath);
-            if (stat != null) {
-                previousPath = currentPath;
-                currentPath = destPath;
-            } else {
-                return wrappedAsRed("Destination not existed: " + destPath);
+    @Bean
+    public CommandRegistration cd() {
+        return constructSinglePositionalCommand("cd", "Change Path", ctx -> {
+            try {
+                String path = "/";
+                final List<String> args = ctx.getParserResults().positional();
+                if (!args.isEmpty()) {
+                    path = args.get(0);
+                }
+                String destPath = getAbsolutePath(path);
+                Stat stat = zooKeeperService.getCurator().checkExists().forPath(destPath);
+                if (stat != null) {
+                    previousPath = currentPath;
+                    currentPath = destPath;
+                } else {
+                    return wrappedAsRed("Destination not existed: " + destPath);
+                }
+            } catch (Exception e) {
+                log.error("cat", e);
+                return wrappedAsRed(e.getMessage());
             }
-        } catch (Exception e) {
-            log.error("cd", e);
-            return wrappedAsRed(e.getMessage());
-        }
-        return null;
+            return null;
+        });
     }
 
-    /**
-     * stop aria2
-     *
-     * @return stop status
-     */
-    @ShellMethod(key = "ls", value = "List directories or files")
-    public String ls(@ShellOption(help = "Node path") String path) {
-        try {
-            String destPath = getAbsolutePath(path);
-            List<String> children = zooKeeperService.getCurator().getChildren().forPath(destPath);
-            if (children.isEmpty()) {
-                return "No children found!";
+    @Bean
+    public CommandRegistration ls() {
+        return constructSinglePositionalCommand("ls", "List directories or files", ctx -> {
+            try {
+                String path = "/";
+                final List<String> args = ctx.getParserResults().positional();
+                if (!args.isEmpty()) {
+                    path = args.get(0);
+                }
+                String destPath = getAbsolutePath(path);
+                List<String> children = zooKeeperService.getCurator().getChildren().forPath(destPath);
+                if (children.isEmpty()) {
+                    return "No children found!";
+                }
+                return StringUtils.join(children, LINE_SEPARATOR);
+            } catch (Exception e) {
+                log.error("cat", e);
+                return wrappedAsRed(e.getMessage());
             }
-            return StringUtils.join(children, LINE_SEPARATOR);
-        } catch (Exception e) {
-            log.error("ls", e);
-            return wrappedAsRed(e.getMessage());
-        }
+        });
     }
 
-    /**
-     * stop aria2
-     *
-     * @return stop status
-     */
+
     @SuppressWarnings("StringConcatenationInsideStringBufferAppend")
-    @ShellMethod(key = "stat", value = "Show node or server stat")
-    public String stat(@ShellOption(help = "Node name") String path) {
+    public String stat(String fullPath) {
         try {
-            if (StringUtils.isEmpty(path)) {
-                return zooKeeperService.executeCommand("stat");
-            }
-            Stat stat = zooKeeperService.getCurator().checkExists().forPath(getAbsolutePath(path));
+            Stat stat = zooKeeperService.getCurator().checkExists().forPath(fullPath);
             StringBuilder buf = new StringBuilder();
             buf.append("cZxid = " + stat.getCzxid() + LINE_SEPARATOR);
             buf.append("ctime = " + new Date(stat.getCtime()).toString() + LINE_SEPARATOR);
@@ -142,15 +142,42 @@ public class ZkShellOperationCommands {
         }
     }
 
-    @ShellMethod(key = "cat", value = "Show node content")
-    public String cat(@ShellOption(help = "Node name") String path) {
-        try {
-            byte[] content = zooKeeperService.getCurator().getData().forPath(getAbsolutePath(path));
-            return new String(content);
-        } catch (Exception e) {
-            log.error("cat", e);
-            return wrappedAsRed(e.getMessage());
-        }
+
+    @Bean
+    public CommandRegistration stat() {
+        return constructSinglePositionalCommand("stat", "Show node or server stat", ctx -> {
+            try {
+                String path = "/";
+                final List<String> args = ctx.getParserResults().positional();
+                if (!args.isEmpty()) {
+                    path = args.get(0);
+                } else {
+                    return zooKeeperService.executeCommand("stat");
+                }
+                return stat(getAbsolutePath(path));
+            } catch (Exception e) {
+                log.error("stat", e);
+                return wrappedAsRed(e.getMessage());
+            }
+        });
+    }
+
+    @Bean
+    public CommandRegistration cat() {
+        return constructSinglePositionalCommand("cat", "Show node content", ctx -> {
+            try {
+                String path = "/";
+                final List<String> args = ctx.getParserResults().positional();
+                if (!args.isEmpty()) {
+                    path = args.get(0);
+                }
+                byte[] content = zooKeeperService.getCurator().getData().forPath(getAbsolutePath(path));
+                return new String(content);
+            } catch (Exception e) {
+                log.error("cat", e);
+                return wrappedAsRed(e.getMessage());
+            }
+        });
     }
 
     @ShellMethod(key = "server", value = "Execute command")
@@ -163,45 +190,50 @@ public class ZkShellOperationCommands {
         }
     }
 
-    @ShellMethod(key = "touch", value = "Create node")
-    public String touch(
-            @ShellOption(value = {"mode"}, help = "Mode name") ZkNodeCreateMode mode,
-            @ShellOption(help = "Node name") String name) {
-        try {
-            zooKeeperService.getCurator().create().withMode(mode.toZkMode()).forPath(getAbsolutePath(name), new byte[0]);
-            return stat(name);
-        } catch (Exception e) {
-            log.error("cat", e);
-            return wrappedAsRed(e.getMessage());
-        }
-    }
-
-    @ShellMethod(key = "mkdir", value = "Create node")
-    public String mkdir(@ShellOption(help = "Node name") String name) {
-        return touch(ZkNodeCreateMode.persistent, name);
-    }
-
-    @ShellMethod(key = "echo", value = "Update content")
-    public String echo(@ShellOption(value = {"node"}, help = "Node Name") String nodePath,
-                       @ShellOption(help = "Node Content") String content) {
-        try {
-            String absolutePath = getAbsolutePath(nodePath);
-            Stat stat = zooKeeperService.getCurator().checkExists().forPath(absolutePath);
-            if (stat == null) {
-                zooKeeperService.getCurator().create().forPath(absolutePath, content.getBytes());
-                return "'" + absolutePath + "' created with given content!";
-            } else {
-                zooKeeperService.getCurator().setData().forPath(absolutePath, content.getBytes());
-                return "'" + absolutePath + "' updated with given content!";
+    @Bean
+    public CommandRegistration touch() {
+        return constructSinglePositionalCommand("touch", "Create node", ctx -> {
+            try {
+                String path = "/";
+                final List<String> args = ctx.getParserResults().positional();
+                if (!args.isEmpty()) {
+                    path = args.get(0);
+                }
+                zooKeeperService.getCurator().create().withMode(ZkNodeCreateMode.persistent.toZkMode()).forPath(getAbsolutePath(path), new byte[0]);
+                return stat(path);
+            } catch (Exception e) {
+                log.error("touch", e);
+                return wrappedAsRed(e.getMessage());
             }
-        } catch (Exception e) {
-            log.error("echo", e);
-            return wrappedAsRed(e.getMessage());
-        }
+        });
     }
+
+    @Bean
+    public CommandRegistration echo() {
+        return CommandRegistration.builder().command("echo").withOption().position(0).and().withOption().position(1).and().withTarget().function(ctx -> {
+            final List<String> args = ctx.getParserResults().positional();
+            try {
+                String nodePath = args.get(0);
+                String content = args.get(1);
+                String absolutePath = getAbsolutePath(nodePath);
+                Stat stat = zooKeeperService.getCurator().checkExists().forPath(absolutePath);
+                if (stat == null) {
+                    zooKeeperService.getCurator().create().forPath(absolutePath, content.getBytes());
+                    return "'" + absolutePath + "' created with given content!";
+                } else {
+                    zooKeeperService.getCurator().setData().forPath(absolutePath, content.getBytes());
+                    return "'" + absolutePath + "' updated with given content!";
+                }
+            } catch (Exception e) {
+                log.error("echo", e);
+                return wrappedAsRed(e.getMessage());
+            }
+        }).and().build();
+    }
+
 
     @ShellMethod(key = "watch", value = "Watch node")
-    public String watch(@ShellOption(help = "Node name", value = "") String name) {
+    public String watch(@ShellOption(help = "Node name") String name) {
         try {
             final String absolutePath = getAbsolutePath(name);
             Stat stat = zooKeeperService.getCurator().checkExists().forPath(absolutePath);
@@ -268,6 +300,11 @@ public class ZkShellOperationCommands {
         System.out.println("dest: " + destPath);
         return destPath;
     }
+
+    CommandRegistration constructSinglePositionalCommand(String command, String description, Function<CommandContext, ?> function) {
+        return CommandRegistration.builder().command(command).description(description).withOption().position(0).and().withTarget().function(function).and().build();
+    }
+
 
     public static String endWith(String path, String end) {
         return path.endsWith(end) ? path : path + end;
