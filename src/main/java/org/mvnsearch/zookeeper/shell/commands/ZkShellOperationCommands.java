@@ -71,7 +71,7 @@ public class ZkShellOperationCommands {
      * @return stop status
      */
     @ShellMethod(key = "cd", value = "Change Path")
-    public String cd(@ShellOption(help = "Directory", value = "") String path) {
+    public String cd(@ShellOption(help = "Directory") String path) {
         try {
             String destPath = getAbsolutePath(path);
             Stat stat = zooKeeperService.getCurator().checkExists().forPath(destPath);
@@ -94,7 +94,7 @@ public class ZkShellOperationCommands {
      * @return stop status
      */
     @ShellMethod(key = "ls", value = "List directories or files")
-    public String ls(@ShellOption(help = "Node path", defaultValue = "") String path) {
+    public String ls(@ShellOption(help = "Node path") String path) {
         try {
             String destPath = getAbsolutePath(path);
             List<String> children = zooKeeperService.getCurator().getChildren().forPath(destPath);
@@ -115,7 +115,7 @@ public class ZkShellOperationCommands {
      */
     @SuppressWarnings("StringConcatenationInsideStringBufferAppend")
     @ShellMethod(key = "stat", value = "Show node or server stat")
-    public String stat(@ShellOption(help = "Node name", value = "") String path) {
+    public String stat(@ShellOption(help = "Node name") String path) {
         try {
             if (StringUtils.isEmpty(path)) {
                 return zooKeeperService.executeCommand("stat");
@@ -143,7 +143,7 @@ public class ZkShellOperationCommands {
     }
 
     @ShellMethod(key = "cat", value = "Show node content")
-    public String cat(@ShellOption(help = "Node name", value = "") String path) {
+    public String cat(@ShellOption(help = "Node name") String path) {
         try {
             byte[] content = zooKeeperService.getCurator().getData().forPath(getAbsolutePath(path));
             return new String(content);
@@ -165,7 +165,7 @@ public class ZkShellOperationCommands {
 
     @ShellMethod(key = "touch", value = "Create node")
     public String touch(
-            @ShellOption(value = {"mode"}, help = "Node name") ZkNodeCreateMode mode,
+            @ShellOption(value = {"mode"}, help = "Mode name") ZkNodeCreateMode mode,
             @ShellOption(help = "Node name") String name) {
         try {
             zooKeeperService.getCurator().create().withMode(mode.toZkMode()).forPath(getAbsolutePath(name), new byte[0]);
@@ -265,6 +265,7 @@ public class ZkShellOperationCommands {
         if (destPath.isEmpty()) {
             destPath = "/";
         }
+        System.out.println("dest: " + destPath);
         return destPath;
     }
 
